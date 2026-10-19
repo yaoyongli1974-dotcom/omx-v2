@@ -13,6 +13,10 @@ bundle，并把它的运行时接口翻译到 V2：
 
 [English](./README.md) | 简体中文
 
+> **本仓库是唯一事实来源。** 开发和发布都在这里进行。oh-my-cortex Fork 上的
+> `feat/opencode-v2-adapter` 分支只是提交上游 PR 的快照，不用于日常开发。见
+> [MAINTAINING.md](./MAINTAINING.md)。
+
 ## 环境要求
 
 - OpenCode 2.x

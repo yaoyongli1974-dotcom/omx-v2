@@ -2,6 +2,10 @@
 
 [English](./README.md) | [简体中文](./README.zh-cn.md)
 
+> **Canonical repository.** Development and releases happen here. The
+> `feat/opencode-v2-adapter` branch on the oh-my-cortex fork is only a snapshot for the upstream
+> PR; see [MAINTAINING.md](./MAINTAINING.md).
+
 Compatibility layer that runs the V1 plugin [`oh-my-cortex`](https://github.com/michaelxer/oh-my-cortex)
 on **OpenCode V2** (tested with OpenCode 2.0.32 and oh-my-cortex 0.1.6).
 
