@@ -1,4 +1,7 @@
-// oh-my-cortex V1 -> OpenCode V2 compatibility adapter (MVP)
+// oh-my-cortex V1 -> OpenCode V2 compatibility adapter
+// Targets OpenCode 2.0.x - 2.1.x (verified on 2.1.0) with oh-my-cortex 0.1.6.
+// OpenCode 2.1 removed the `session.compacted` bus event; the event bridge at the
+// bottom of this file maps `session.compaction.ended` back to it for V1 consumers.
 // Loads the installed oh-my-cortex bundle, then re-registers its V1 hooks,
 // tools, commands and MCP servers through the V2 plugin API.
 import fs from "node:fs"
@@ -539,9 +542,11 @@ export default {
       void (async () => {
         try {
           for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
-            await guard(`event ${event.type}`, () => v1.event({
+            // V2 2.1 removed `session.compacted`; V1 plugins still key off it.
+            const type = event.type === "session.compaction.ended" ? "session.compacted" : event.type
+            await guard(`event ${type}`, () => v1.event({
               event: {
-                type: event.type,
+                type,
                 properties: event.data ?? event.properties ?? event,
               },
             }))

@@ -7,7 +7,7 @@
 > PR; see [MAINTAINING.md](./MAINTAINING.md).
 
 Compatibility layer that runs the V1 plugin [`oh-my-cortex`](https://github.com/michaelxer/oh-my-cortex)
-on **OpenCode V2** (tested with OpenCode 2.0.32 and oh-my-cortex 0.1.6).
+on **OpenCode V2** (verified with OpenCode 2.0.32 and 2.1.0, plus oh-my-cortex 0.1.6).
 
 This is **not** a rewrite of oh-my-cortex. OMX is large (~275k lines of source); the adapter loads the
 published V1 bundle and translates its runtime surface to V2:
@@ -17,9 +17,24 @@ published V1 bundle and translates its runtime surface to V2:
 - V1 hooks → V2 `session.hook`, `tool.hook`, `agent/command/mcp.transform`, `event.subscribe`
 - OMX config output → generated agent Markdown, runtime commands, MCP servers
 
+## OpenCode 2.1 compatibility
+
+OpenCode 2.1.0 changed public plugin, SDK, and event contracts. The adapter handles it as follows:
+
+| 2.1.0 change | Adapter impact |
+| --- | --- |
+| `session.compacted` bus event removed | **Handled.** The event bridge maps `session.compaction.ended` → `session.compacted` before handing it to V1 plugins, so oh-my-cortex's compaction recovery and todo snapshot restore still run. |
+| `state` / `providerState` / `resultState` / `providerContext` renamed to `native` | Not used by the adapter. No change needed. |
+| Tool parts collapse to a single `tool.native` | Not used. `tool.state` (execution status/output) is unchanged and still what the adapter passes through. |
+| `Credential.Key.configuration` → `metadata` | No credential writes. No change needed. |
+| Summary compaction `recent` → `metadata.keepID`, `providerContext` → `native.messages` | No compaction-result writes. The adapter only mutates `event.messages` inside the `compaction` hook. |
+
+Known gap: the V1 `permission.ask` and `tool.definition` hooks have no V2 equivalent mapped yet
+(pre-existing, unrelated to 2.1).
+
 ## Requirements
 
-- OpenCode 2.x
+- OpenCode 2.0.x – 2.1.x
 - Node.js 20+
 - `oh-my-cortex@0.1.6` (the installer bootstraps it into
   `~/.local/share/opencode/omx-v2`; no global npm install needed)

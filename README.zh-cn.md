@@ -1,7 +1,7 @@
 # oh-my-cortex 的 OpenCode V2 适配器
 
 让 V1 插件 [`oh-my-cortex`](https://github.com/michaelxer/oh-my-cortex) 运行在 **OpenCode V2** 上的兼容层
-（已在 OpenCode 2.0.32 + oh-my-cortex 0.1.6 上验证）。
+（已在 OpenCode 2.0.32 与 2.1.0 + oh-my-cortex 0.1.6 上验证）。
 
 这不是对 oh-my-cortex 的重写。OMX 源码约 27 万行，完整重写不现实；适配器在运行时加载已发布的 V1
 bundle，并把它的运行时接口翻译到 V2：
@@ -17,9 +17,23 @@ bundle，并把它的运行时接口翻译到 V2：
 > `feat/opencode-v2-adapter` 分支只是提交上游 PR 的快照，不用于日常开发。见
 > [MAINTAINING.md](./MAINTAINING.md)。
 
+## OpenCode 2.1 兼容性
+
+OpenCode 2.1.0 改动了插件、SDK 与事件的公开契约，适配器的处理如下：
+
+| 2.1.0 变更 | 适配器影响 |
+| --- | --- |
+| 移除 `session.compacted` 总线事件 | **已处理。** 事件桥在交给 V1 插件之前把 `session.compaction.ended` 映射为 `session.compacted`，oh-my-cortex 的压缩后恢复与 todo 快照还原仍会执行。 |
+| `state` / `providerState` / `resultState` / `providerContext` 统一改名为 `native` | 适配器不使用这些字段，无需改动。 |
+| 工具 part 合并为单个 `tool.native` | 不使用。`tool.state`（执行状态与输出）未变，适配器透传的仍是它。 |
+| `Credential.Key.configuration` → `metadata` | 不写凭据，无需改动。 |
+| 摘要压缩 `recent` → `metadata.keepID`，`providerContext` → `native.messages` | 不写压缩结果。适配器只在 `compaction` 钩子里改 `event.messages`。 |
+
+已知缺口：V1 的 `permission.ask` 与 `tool.definition` 钩子还没有对应的 V2 映射（2.1 之前就存在，与本次升级无关）。
+
 ## 环境要求
 
-- OpenCode 2.x
+- OpenCode 2.0.x – 2.1.x
 - Node.js 20+
 - `oh-my-cortex@0.1.6`（安装脚本会自动装到 `~/.local/share/opencode/omx-v2`，不需要全局 npm 安装）
 
